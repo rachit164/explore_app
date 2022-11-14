@@ -1,3 +1,6 @@
+import 'package:explore_app/helpers/location_helper.dart';
+import 'package:explore_app/models/place.dart';
+import 'package:explore_app/screens/map_screen.dart';
 import 'package:location/location.dart';
 import 'package:flutter/material.dart';
 
@@ -10,11 +13,27 @@ class LocationInput extends StatefulWidget {
 
 class _LocationInputState extends State<LocationInput> {
   var previewImageUrl;
+  var place = const PlaceLocation('', latitude: 22, longitude: 10);
 
   Future<void> _getCurrentUserLocation() async {
     final locData = await Location().getLocation();
-    print(locData.longitude);
-    print(locData.latitude);
+    final staticMapImageUrl = LocationHelper.generateLocationPreviewimage(
+        latitue: locData.latitude!, longitude: locData.longitude!);
+    setState(() {
+      previewImageUrl = staticMapImageUrl;
+    });
+  }
+
+  Future<void> selectOnMap() async {
+    final selectedLocation = await Navigator.of(context).push(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (ctx) => MapScreen(place, isSelecting: true),
+      ),
+    );
+    if (selectedLocation == null) {
+      return;
+    }
   }
 
   @override
@@ -53,7 +72,7 @@ class _LocationInputState extends State<LocationInput> {
               ),
             ),
             TextButton.icon(
-              onPressed: () {},
+              onPressed: selectOnMap,
               icon: const Icon(Icons.map),
               label: Text(
                 'Select on Map',
@@ -61,7 +80,7 @@ class _LocationInputState extends State<LocationInput> {
               ),
             ),
           ],
-        )
+        ),
       ],
     );
   }
