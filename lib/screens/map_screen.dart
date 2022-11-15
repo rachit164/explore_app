@@ -31,10 +31,13 @@ class _MapScreenState extends State<MapScreen> {
         actions: [
           if (widget.isSelecting)
             IconButton(
-                onPressed: () {
-                  Navigator.of(context).pop(_pickedLocation);
-                },
-                icon: const Icon(Icons.check))
+              onPressed: _pickedLocation == null
+                  ? null
+                  : () {
+                      Navigator.of(context).pop(_pickedLocation);
+                    },
+              icon: const Icon(Icons.check),
+            ),
         ],
       ),
       body: GoogleMap(
