@@ -6,7 +6,8 @@ import 'package:location/location.dart';
 import 'package:flutter/material.dart';
 
 class LocationInput extends StatefulWidget {
-  const LocationInput({Key? key}) : super(key: key);
+  const LocationInput(this.onSelectPlace, {Key? key}) : super(key: key);
+  final Function onSelectPlace;
 
   @override
   State<LocationInput> createState() => _LocationInputState();
@@ -15,13 +16,22 @@ class LocationInput extends StatefulWidget {
 class _LocationInputState extends State<LocationInput> {
   var previewImageUrl;
 
-  Future<void> _getCurrentUserLocation() async {
-    final locData = await Location().getLocation();
+  void _showPreview(double lat, double lng) {
     final staticMapImageUrl = LocationHelper.generateLocationPreviewimage(
-        latitue: locData.latitude!, longitude: locData.longitude!);
+        latitue: lat, longitude: lng);
     setState(() {
       previewImageUrl = staticMapImageUrl;
     });
+  }
+
+  Future<void> _getCurrentUserLocation() async {
+    try {
+      final locData = await Location().getLocation();
+      _showPreview(locData.latitude!, locData.longitude!);
+      widget.onSelectPlace(locData.latitude, locData.longitude);
+    } catch (error) {
+      return;
+    }
   }
 
   Future<void> selectOnMap() async {
@@ -34,6 +44,8 @@ class _LocationInputState extends State<LocationInput> {
     if (selectedLocation == null) {
       return;
     }
+    _showPreview(selectedLocation.latitude, selectedLocation.longitude);
+    widget.onSelectPlace(selectedLocation.latitude, selectedLocation.longitude);
     print(selectedLocation.latitude);
   }
 
